@@ -30,5 +30,8 @@ namespace Voting_App.Controllers
 
             return Ok(res);
         }
+
+        [HttpPost]
+
     }
 }
