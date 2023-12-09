@@ -5,7 +5,7 @@ using Voting_App.Entities;
 namespace Voting_App.Controllers
 {
    
-    [Route("/vote")]
+    [Route("vote")]
     public class VotingController : Controller
     {
         VotingDbContext context;
@@ -14,6 +14,7 @@ namespace Voting_App.Controllers
         {
             context = _context;
         }
+
 
         [HttpGet("get/{page}")]
         public ActionResult ReturnVotes([FromRoute] int page)
@@ -31,7 +32,7 @@ namespace Voting_App.Controllers
             return Ok(res);
         }
 
-        [HttpPost]
-
+        //[HttpPost]
+        //add action for creating votes
     }
 }
