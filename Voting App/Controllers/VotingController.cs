@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using Voting_App.Entities;
 
 namespace Voting_App.Controllers
@@ -15,25 +16,19 @@ namespace Voting_App.Controllers
         }
 
         [HttpGet("get/{page}")]
-        public ActionResult GetAllVotes([FromRoute] int page)
+        public ActionResult ReturnVotes([FromRoute] int page)
         {
             if(page <= 0)
             {
                 return BadRequest();
             }
 
-            page *= 10;
+            
+            int maxIndex = page*10;
 
-            var votes = context.votes.ToList();
+            var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
 
-            var paginatedVotes = new List<Vote>();
-
-            for(int i = page-10; i<page; i++)
-            {
-                paginatedVotes.Add(votes[i]);
-            }
-
-            return Ok(paginatedVotes);
+            return Ok(res);
         }
     }
 }
