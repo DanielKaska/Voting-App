@@ -44,7 +44,6 @@ namespace Voting_App.Controllers
             context.Add(user);
             context.SaveChanges();
 
-
             return Ok();
 
         }
