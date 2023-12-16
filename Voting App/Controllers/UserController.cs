@@ -13,8 +13,8 @@ namespace Voting_App.Controllers
     [Route("user")]
     public class UserController : Controller
     {
-        IPasswordHasher<User> hasher;
-        VotingDbContext context;
+        readonly IPasswordHasher<User> hasher;
+        readonly VotingDbContext context;
         public UserController(IPasswordHasher<User> _hasher, VotingDbContext _context)
         {
             hasher = _hasher;

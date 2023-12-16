@@ -32,6 +32,8 @@ namespace Voting_App.Controllers
             int maxIndex = page*10;
             var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
 
+
+
             return Ok(res);
         }
 
@@ -46,6 +48,8 @@ namespace Voting_App.Controllers
 
             context.votes.Add(vote);
             context.SaveChanges();
+
+            
 
             return Ok(vote.Id);
         }
