@@ -4,9 +4,16 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Voting_App;
 using Voting_App.Entities;
+using Voting_App.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var settings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+var settingsValues = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+var settings = new JwtSettings()
+{
+    Issuer = settingsValues.Issuer,
+    Audience = settingsValues.Audience,
+    Key = settingsValues.Key
+};
 
 // Add services to the container.
 
@@ -39,6 +46,9 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<VotingDbContext>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddSingleton<UserService>();
+builder.Services.AddSingleton(settings);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
