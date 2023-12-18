@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics;
+using System.Security.Claims;
 using Voting_App.Entities;
 using Voting_App.Models;
+using Voting_App.Services;
 
 namespace Voting_App.Controllers
 {
@@ -15,10 +17,13 @@ namespace Voting_App.Controllers
     {
         readonly IPasswordHasher<User> hasher;
         readonly VotingDbContext context;
-        public UserController(IPasswordHasher<User> _hasher, VotingDbContext _context)
+        readonly UserService userService;
+
+        public UserController(IPasswordHasher<User> _hasher, VotingDbContext _context, UserService _userService)
         {
             hasher = _hasher;
             context = _context;
+            userService = _userService;
         }
 
         [HttpPost("register")]
@@ -41,11 +46,34 @@ namespace Voting_App.Controllers
             };
 
             user.Password = hasher.HashPassword(user, userDto.Password);
+            user.Role = "user";
             context.Add(user);
             context.SaveChanges();
 
             return Ok();
 
+        }
+
+        [HttpPost("login")]
+        public ActionResult Login([FromBody] LoginDto loginDto)
+        {
+            var user = context.users.FirstOrDefault(u => u.Email == loginDto.Password); //get user from database
+
+            if(user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var result = hasher.VerifyHashedPassword(user, user.Password, loginDto.Password);
+            
+            if(result == PasswordVerificationResult.Success) 
+            {
+                var token = userService.GenerateToken(user);
+
+                return Ok(token);
+            }
+
+            return BadRequest();
         }
 
 
