@@ -24,22 +24,20 @@ builder.Services.AddAuthentication(
         option.DefaultScheme = "Bearer";
         option.DefaultChallengeScheme = "Bearer";
     }
-).AddJwtBearer(
-    b =>
+).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        b.TokenValidationParameters = new()
-        {
-            ValidIssuer = settings.Issuer,
-            ValidAudience = settings.Audience,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key)),
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true
-        };
-    }
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = settings.Issuer,
+        ValidAudience = settings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key))
+    };
+});
 
-);
 
 builder.Services.AddControllers();
 
@@ -53,13 +51,10 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

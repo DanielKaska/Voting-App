@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -7,8 +8,9 @@ using Voting_App.Models;
 
 namespace Voting_App.Controllers
 {
-   
+    [Authorize]
     [Route("vote")]
+    
     public class VotingController : Controller
     {
         VotingDbContext context;
@@ -32,14 +34,17 @@ namespace Voting_App.Controllers
             int maxIndex = page*10;
             var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
 
-
-
             return Ok(res);
         }
 
         [HttpPost("create")]
         public ActionResult CreateVote([FromBody] VoteDto dto)
         {
+            if(dto is null)
+            {
+                return BadRequest();
+            }
+
             var vote = mapper.Map<Vote>(dto);
 
             var user = context.users.FirstOrDefault(u => u.Id == 1);

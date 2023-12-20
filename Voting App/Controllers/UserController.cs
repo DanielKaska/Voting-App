@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace Voting_App.Controllers
 {
     [ApiController]
     [Route("user")]
+    
     public class UserController : Controller
     {
         readonly IPasswordHasher<User> hasher;
