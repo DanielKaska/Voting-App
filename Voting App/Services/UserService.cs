@@ -29,7 +29,7 @@ namespace Voting_App.Services
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-            var token = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddDays(14), signingCredentials: creds);
+            var token = new JwtSecurityToken(issuer: jwtSettings.Issuer, audience: jwtSettings.Audience, claims: claims, expires: DateTime.UtcNow.AddDays(14), signingCredentials: creds);
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
