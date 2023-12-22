@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Net;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Voting_App.Entities;
 using Voting_App.Models;
@@ -50,14 +52,24 @@ namespace Voting_App.Controllers
             var user = context.users.FirstOrDefault(u => u.Id == 1);
 
             vote.CreatedBy = user;
-
             context.votes.Add(vote);
             context.SaveChanges();
-
-            
-
             return Ok(vote.Id);
+
         }
+
+        
+
+        [HttpPost]
+        public ActionResult Vote([FromBody] int voteId)
+        {
+            var clientIp = Request.HttpContext.Connection.RemoteIpAddress;
+            var wantedVote = context.votes.FirstOrDefault(v => v.Id == voteId);
+
+            return Ok(); 
+        }
+
+
 
     }
 }
