@@ -58,7 +58,7 @@ namespace VotingApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CreatedBy")
+                    b.Property<int>("CreatedById")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -77,7 +77,25 @@ namespace VotingApp.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedById");
+
                     b.ToTable("votes");
+                });
+
+            modelBuilder.Entity("Voting_App.Entities.Vote", b =>
+                {
+                    b.HasOne("Voting_App.Entities.User", "CreatedBy")
+                        .WithMany("Votes")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedBy");
+                });
+
+            modelBuilder.Entity("Voting_App.Entities.User", b =>
+                {
+                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }
