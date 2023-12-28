@@ -10,6 +10,6 @@ namespace Voting_App.Entities
         public int YesVotes { get; set; }
         public int NoVotes { get; set; }
 
-        public virtual User CreatedBy { get; set; }
+        public int CreatedBy { get; set; }
     }
 }
