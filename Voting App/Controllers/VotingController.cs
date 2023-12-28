@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -41,6 +42,12 @@ namespace Voting_App.Controllers
             return Ok(res);
         }
 
+        //claims indexes
+        //id - 0
+        //nick - 1
+        //email - 2
+        //role - 3
+
         [HttpPost("create")]
         public ActionResult CreateVote([FromBody] VoteDto dto)
         {
@@ -54,14 +61,16 @@ namespace Voting_App.Controllers
             var userId = User.Claims.ToList()[0].Value;
             var user = context.users.FirstOrDefault(u => u.Id == int.Parse(userId));
 
-            vote.CreatedBy = user;
+
+
+            vote.CreatedBy = user.Id;
             context.votes.Add(vote);
             context.SaveChanges();
             return Ok(vote.Id);
 
         }
 
-        
+
 
         [HttpPost]
         public ActionResult Vote([FromBody] int voteId)
@@ -69,23 +78,46 @@ namespace Voting_App.Controllers
             var clientIp = Request.HttpContext.Connection.RemoteIpAddress;
             var vote = context.votes.FirstOrDefault(v => v.Id == voteId);
 
-            
 
-            return Ok(); 
+
+            return Ok();
         }
+
+
+
+
+        //claims indexes
+        //id - 0
+        //nick - 1
+        //email - 2
+        //role - 3
 
         [HttpDelete("delete/{voteId}")]
         public ActionResult Delete([FromRoute] int voteId)
         {
-            Debug.WriteLine(voteId);
-
             var vote = context.votes.FirstOrDefault(v => v.Id == voteId);
 
-            Debug.WriteLine(vote.CreatedBy);
+            if(vote is null)
+            {
+                return BadRequest("vote not found");
+            }
 
+            var voteCreator = context.users.FirstOrDefault(user => user.Id == vote.CreatedBy); //user that created the vote
+
+            var client = User.Claims.ToList(); //client
+            var clientId = int.Parse(client[0].Value);
+            var clientRole = client[3].Value;
+
+            if (clientId == voteCreator.Id || clientRole == "Admin") //check if the vote was created by client sending request
+            {
+                context.votes.Remove(vote); //if so, remove the vote from database
+                context.SaveChanges();
+                
+                return Ok("vote removed");
+            }
             
 
-            return Ok();
+            return BadRequest("Something went wrong");
         }
 
 

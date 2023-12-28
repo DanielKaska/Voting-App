@@ -8,7 +8,5 @@
         public string Nickname { get; set; }
 
         public string Role { get; set; }
-
-        public virtual List<Vote> Votes { get; set; }
     }
 }
