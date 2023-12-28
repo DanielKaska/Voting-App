@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using Voting_App.Entities;
 using Voting_App.Models;
 
@@ -49,7 +51,8 @@ namespace Voting_App.Controllers
 
             var vote = mapper.Map<Vote>(dto);
 
-            var user = context.users.FirstOrDefault(u => u.Id == 1);
+            var userId = User.Claims.ToList()[0].Value;
+            var user = context.users.FirstOrDefault(u => u.Id == int.Parse(userId));
 
             vote.CreatedBy = user;
             context.votes.Add(vote);
@@ -64,9 +67,25 @@ namespace Voting_App.Controllers
         public ActionResult Vote([FromBody] int voteId)
         {
             var clientIp = Request.HttpContext.Connection.RemoteIpAddress;
-            var wantedVote = context.votes.FirstOrDefault(v => v.Id == voteId);
+            var vote = context.votes.FirstOrDefault(v => v.Id == voteId);
+
+            
 
             return Ok(); 
+        }
+
+        [HttpDelete("delete/{voteId}")]
+        public ActionResult Delete([FromRoute] int voteId)
+        {
+            Debug.WriteLine(voteId);
+
+            var vote = context.votes.FirstOrDefault(v => v.Id == voteId);
+
+            Debug.WriteLine(vote.CreatedBy);
+
+            
+
+            return Ok();
         }
 
 

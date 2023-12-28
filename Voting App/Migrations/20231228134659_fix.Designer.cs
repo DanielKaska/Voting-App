@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Voting_App.Entities;
 
@@ -10,9 +11,11 @@ using Voting_App.Entities;
 namespace VotingApp.Migrations
 {
     [DbContext(typeof(VotingDbContext))]
-    partial class VotingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231228134659_fix")]
+    partial class fix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,17 +88,12 @@ namespace VotingApp.Migrations
             modelBuilder.Entity("Voting_App.Entities.Vote", b =>
                 {
                     b.HasOne("Voting_App.Entities.User", "CreatedBy")
-                        .WithMany("Votes")
+                        .WithMany()
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CreatedBy");
-                });
-
-            modelBuilder.Entity("Voting_App.Entities.User", b =>
-                {
-                    b.Navigation("Votes");
                 });
 #pragma warning restore 612, 618
         }

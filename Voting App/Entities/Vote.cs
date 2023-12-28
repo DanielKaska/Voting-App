@@ -1,4 +1,6 @@
-﻿namespace Voting_App.Entities
+﻿using System.Net;
+
+namespace Voting_App.Entities
 {
     public class Vote
     {
