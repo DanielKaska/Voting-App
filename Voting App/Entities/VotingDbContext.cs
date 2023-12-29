@@ -7,6 +7,7 @@ namespace Voting_App.Entities
         private string connectionString = "Server=localhost;Database=VotingAppDB;Integrated Security=True;TrustServerCertificate=True;";
         public DbSet<User> users { get; set; }
         public DbSet<Vote> votes { get; set; }
+        public DbSet<Answer> answers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder mb)
         {
