@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.Identity.Client;
 using System.Diagnostics;
 using System.Linq;
@@ -55,15 +56,23 @@ namespace Voting_App.Controllers
             {
                 return BadRequest();
             }
+            var userId = int.Parse(User.Claims.ToList()[0].Value);
 
-            var vote = mapper.Map<Vote>(dto);
+            var answers = new List<Answer>();
 
-            var userId = User.Claims.ToList()[0].Value;
-            var user = context.users.FirstOrDefault(u => u.Id == int.Parse(userId));
+            foreach(var answer in dto.Answers)
+            {
+                answers.Add(mapper.Map<Answer>(answer));
+            }
 
+            var vote = new Vote()
+            {
+                Name = dto.Name,
+                Description = dto.Description,
+                Answers = answers,
+                CreatedBy = userId,
+            };
 
-
-            vote.CreatedBy = user.Id;
             context.votes.Add(vote);
             context.SaveChanges();
             return Ok(vote.Id);

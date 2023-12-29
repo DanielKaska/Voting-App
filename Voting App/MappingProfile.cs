@@ -11,6 +11,7 @@ namespace Voting_App
         public MappingProfile()
         {
             CreateMap<VoteDto, Vote>(); //converting from VoteDto to Vote
+            CreateMap<AnswerDto, Answer>();
         }
     }
 }
