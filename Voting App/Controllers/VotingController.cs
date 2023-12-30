@@ -40,6 +40,8 @@ namespace Voting_App.Controllers
             int maxIndex = page*10;
             var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
 
+            
+
             return Ok(res);
         }
 
@@ -56,11 +58,15 @@ namespace Voting_App.Controllers
             {
                 return BadRequest();
             }
-            var userId = int.Parse(User.Claims.ToList()[0].Value);
+
+            var claims = User.Claims; //get user claims
+            var userId = claims.Where(c => c.Type == "id").FirstOrDefault(); //get user id
+            
+            //var userId = int.Parse(.ToList()[0].Value);
 
             var answers = new List<Answer>();
 
-            foreach(var answer in dto.Answers)
+            foreach(var answer in dto.Answers) //add answers to list
             {
                 answers.Add(mapper.Map<Answer>(answer));
             }
@@ -70,7 +76,7 @@ namespace Voting_App.Controllers
                 Name = dto.Name,
                 Description = dto.Description,
                 Answers = answers,
-                CreatedBy = userId,
+                CreatedBy = int.Parse(userId.Value),
             };
 
             context.votes.Add(vote);
