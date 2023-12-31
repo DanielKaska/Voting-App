@@ -1,10 +1,10 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Voting_App;
 using Voting_App.Entities;
 using Voting_App.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var settingsValues = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
@@ -40,6 +40,8 @@ builder.Services.AddAuthentication(
 
 
 builder.Services.AddControllers();
+
+builder.Services.AddControllersWithViews().AddNewtonsoftJson(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 builder.Services.AddSingleton<VotingDbContext>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
