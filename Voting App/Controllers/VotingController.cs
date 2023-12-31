@@ -29,27 +29,24 @@ namespace Voting_App.Controllers
         }
 
 
-        [HttpGet("get/{page}")]
-        public ActionResult ReturnVotes([FromRoute] int page)
+        [HttpGet("get/{voteId}")]
+        public ActionResult ReturnVotes([FromRoute] int voteId)
         {
-            if(page <= 0)
+            //var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
+
+            var vote = context.votes.FirstOrDefault(x => x.Id == voteId);
+
+            if(vote is null)
             {
-                return BadRequest();
+                return BadRequest("vote not found");
             }
 
-            int maxIndex = page*10;
-            var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
+            var answers = context.answers.Where(answers => answers.VoteId == voteId);
 
-            
+            vote.Answers = answers.ToList();
 
-            return Ok(res);
+            return Ok(vote);
         }
-
-        //claims indexes
-        //id - 0
-        //nick - 1
-        //email - 2
-        //role - 3
 
         [HttpPost("create")]
         public ActionResult CreateVote([FromBody] VoteDto dto)
@@ -94,18 +91,9 @@ namespace Voting_App.Controllers
             var vote = context.votes.FirstOrDefault(v => v.Id == voteId);
 
 
-
             return Ok();
         }
 
-
-
-
-        //claims indexes
-        //id - 0
-        //nick - 1
-        //email - 2
-        //role - 3
 
         [HttpDelete("delete/{voteId}")]
         public ActionResult Delete([FromRoute] int voteId)
