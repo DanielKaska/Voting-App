@@ -30,7 +30,7 @@ namespace Voting_App.Controllers
 
 
         [HttpGet("get/{voteId}")]
-        public ActionResult ReturnVotes([FromRoute] int voteId)
+        public ActionResult Get([FromRoute] int voteId)
         {
             //var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
 
