@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Voting_App;
 using Voting_App.Entities;
+using Voting_App.Exceptions;
 using Voting_App.Services;
 
 
@@ -48,11 +49,14 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton(settings);
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddSingleton<VoteService>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
