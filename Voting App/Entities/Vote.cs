@@ -10,7 +10,6 @@ namespace Voting_App.Entities
 
         public int CreatedBy { get; set; }
 
-        public int AnswerId { get; set; }
         public virtual List<Answer> Answers { get; set; }
 
        
