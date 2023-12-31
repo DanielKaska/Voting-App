@@ -9,8 +9,10 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
+using System.Threading.Tasks.Sources;
 using Voting_App.Entities;
 using Voting_App.Models;
+using Voting_App.Services;
 
 namespace Voting_App.Controllers
 {
@@ -19,13 +21,14 @@ namespace Voting_App.Controllers
     
     public class VotingController : Controller
     {
-        VotingDbContext context;
-        private IMapper mapper;
-
-        public VotingController(VotingDbContext _context, IMapper _mapper)
+        private readonly VotingDbContext context;
+        private readonly IMapper mapper;
+        private readonly VoteService vs; //vote service
+        public VotingController(VotingDbContext _context, IMapper _mapper, VoteService _voteService)
         {
             context = _context;
             mapper = _mapper;
+            vs = _voteService;
         }
 
 
@@ -34,16 +37,7 @@ namespace Voting_App.Controllers
         {
             //var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
 
-            var vote = context.votes.FirstOrDefault(x => x.Id == voteId);
-
-            if(vote is null)
-            {
-                return BadRequest("vote not found");
-            }
-
-            var answers = context.answers.Where(answers => answers.VoteId == voteId);
-
-            vote.Answers = answers.ToList();
+            var vote = vs.GetById(voteId);
 
             return Ok(vote);
         }
@@ -51,30 +45,15 @@ namespace Voting_App.Controllers
         [HttpPost("create")]
         public ActionResult CreateVote([FromBody] VoteDto dto)
         {
-            if(dto is null)
+            var claims = User.Claims; //get user claims
+            var userId = claims.Where(c => c.Type == "id").FirstOrDefault(); //get user id
+
+            if(userId == null)
             {
                 return BadRequest();
             }
 
-            var claims = User.Claims; //get user claims
-            var userId = claims.Where(c => c.Type == "id").FirstOrDefault(); //get user id
-            
-            //var userId = int.Parse(.ToList()[0].Value);
-
-            var answers = new List<Answer>();
-
-            foreach(var answer in dto.Answers) //add answers to list
-            {
-                answers.Add(mapper.Map<Answer>(answer));
-            }
-
-            var vote = new Vote()
-            {
-                Name = dto.Name,
-                Description = dto.Description,
-                Answers = answers,
-                CreatedBy = int.Parse(userId.Value),
-            };
+            var vote = vs.Create(dto, int.Parse(userId.Value));
 
             context.votes.Add(vote);
             context.SaveChanges();
