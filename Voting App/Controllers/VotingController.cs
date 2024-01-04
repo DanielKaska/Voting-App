@@ -86,11 +86,15 @@ namespace Voting_App.Controllers
 
             var voteCreator = context.users.FirstOrDefault(user => user.Id == vote.CreatedBy); //user that created the vote
 
-            var client = User.Claims.ToList(); //client
-            var clientId = int.Parse(client[0].Value);
-            var clientRole = client[3].Value;
+            var userClaims = User.Claims; //claims
 
-            if (clientId == voteCreator.Id || clientRole == "Admin") //check if the vote was created by client sending request
+            if (userClaims is null)
+                return BadRequest();
+
+            var userId = int.Parse(User.Claims.Where(c => c.Type == "id").FirstOrDefault().Value);
+            var role = User.Claims.Where(c => c.Type == "role").FirstOrDefault().Value;
+
+            if (userId == voteCreator.Id || role == "Admin") //check if the vote was created by client sending request
             {
                 context.votes.Remove(vote); //if so, remove the vote from database
                 context.SaveChanges();
