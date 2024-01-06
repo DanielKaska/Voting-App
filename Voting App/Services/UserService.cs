@@ -3,16 +3,30 @@ using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Voting_App.Entities;
+using Voting_App.Exceptions;
 
 namespace Voting_App.Services
 {
     public class UserService
     {
 
-        readonly JwtSettings jwtSettings;
-        public UserService(JwtSettings _jwtSettings)
+        private readonly JwtSettings jwtSettings;
+        private readonly VotingDbContext context;
+
+        public UserService(JwtSettings _jwtSettings, VotingDbContext _context)
         {
             jwtSettings = _jwtSettings;
+            context = _context;
+        }
+
+        public User GetById(int id)
+        {
+            var user = context.users.FirstOrDefault(user => user.Id == id);
+
+            if (user is null)
+                throw new NotFoundException("user not found");
+
+            return user;
         }
 
 
