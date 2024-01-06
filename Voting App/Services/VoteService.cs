@@ -19,7 +19,7 @@ namespace Voting_App.Services
             mapper = _mapper;
         }
 
-        public Vote GetVoteById(int voteId)
+        public ShowVoteDto GetVoteDto(int voteId)
         {
             var vote = context.votes.FirstOrDefault(x => x.Id == voteId);
 
@@ -30,9 +30,19 @@ namespace Voting_App.Services
 
             var answers = context.answers.Where(answers => answers.VoteId == voteId);
 
-            vote.Answers = answers.ToList();
+            List<ShowAnswerDto> answersDto = new();
 
-            return vote;
+            foreach(var a in answers)
+            {
+                var answer = mapper.Map<ShowAnswerDto>(a);
+                answer.voteCount = a.VoteCounter;
+                answersDto.Add(answer);
+            }
+
+            var voteDto = mapper.Map<ShowVoteDto>(vote);
+            voteDto.Answers = answersDto;
+
+            return voteDto;
         }
 
         public Vote Create(VoteDto dto, int userId)
@@ -63,6 +73,22 @@ namespace Voting_App.Services
                 throw new NotFoundException("answer not found");
 
             return a;
+        }
+
+        public Vote GetVoteById(int voteId)
+        {
+            var vote = context.votes.FirstOrDefault(x => x.Id == voteId);
+
+            if (vote is null)
+            {
+                throw new NotFoundException("vote not found");
+            }
+
+            var answers = context.answers.Where(answers => answers.VoteId == voteId);
+
+            vote.Answers = answers.ToList();
+
+            return vote;
         }
 
     }
