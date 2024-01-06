@@ -19,7 +19,7 @@ namespace Voting_App.Services
             mapper = _mapper;
         }
 
-        public Vote GetById(int voteId)
+        public Vote GetVoteById(int voteId)
         {
             var vote = context.votes.FirstOrDefault(x => x.Id == voteId);
 
@@ -55,6 +55,15 @@ namespace Voting_App.Services
             return vote;
         }
 
+        public Answer GetAnswerFromVote(Vote v, string answerName)
+        {
+            var a = v.Answers.FirstOrDefault(a => a.Name == answerName);
+
+            if (a is null)
+                throw new NotFoundException("answer not found");
+
+            return a;
+        }
 
     }
 }
