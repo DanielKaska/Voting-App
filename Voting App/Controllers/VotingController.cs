@@ -25,6 +25,7 @@ namespace Voting_App.Controllers
         private readonly IMapper mapper; //automapper 
         private readonly VoteService vs; //vote service
         private readonly UserService us;
+
         public VotingController(VotingDbContext _context, IMapper _mapper, VoteService _voteService, UserService us)
         {
             context = _context;
@@ -37,7 +38,7 @@ namespace Voting_App.Controllers
         [HttpGet("get/{voteId}")]
         public ActionResult Get([FromRoute] int voteId)
         {
-            var vote = vs.GetVoteById(voteId);
+            var vote = vs.GetVoteDto(voteId);
 
             return Ok(vote);
         }
@@ -56,7 +57,6 @@ namespace Voting_App.Controllers
             context.votes.Add(vote);
             context.SaveChanges();
             return Ok(vote.Id);
-
         }
 
 
