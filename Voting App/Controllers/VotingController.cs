@@ -21,23 +21,23 @@ namespace Voting_App.Controllers
     
     public class VotingController : Controller
     {
-        private readonly VotingDbContext context;
-        private readonly IMapper mapper;
+        private readonly VotingDbContext context; // db context
+        private readonly IMapper mapper; //automapper 
         private readonly VoteService vs; //vote service
-        public VotingController(VotingDbContext _context, IMapper _mapper, VoteService _voteService)
+        private readonly UserService us;
+        public VotingController(VotingDbContext _context, IMapper _mapper, VoteService _voteService, UserService us)
         {
             context = _context;
             mapper = _mapper;
             vs = _voteService;
+            this.us = us;
         }
 
 
         [HttpGet("get/{voteId}")]
         public ActionResult Get([FromRoute] int voteId)
         {
-            //var res = context.votes.Where(v => v.Id <= maxIndex).Where(v => v.Id > maxIndex - 10);
-
-            var vote = vs.GetById(voteId);
+            var vote = vs.GetVoteById(voteId);
 
             return Ok(vote);
         }
@@ -49,9 +49,7 @@ namespace Voting_App.Controllers
             var userId = claims.Where(c => c.Type == "id").FirstOrDefault(); //get user id
 
             if(userId == null)
-            {
-                return BadRequest();
-            }
+                return BadRequest("could not idenditify user");
 
             var vote = vs.Create(dto, int.Parse(userId.Value));
 
@@ -62,13 +60,28 @@ namespace Voting_App.Controllers
         }
 
 
-
+        [AllowAnonymous]
         [HttpPost]
-        public ActionResult Vote([FromBody] int voteId)
+        public ActionResult Vote([FromBody] VoteAnswerDto dto)
         {
-            var clientIp = Request.HttpContext.Connection.RemoteIpAddress;
-            var vote = context.votes.FirstOrDefault(v => v.Id == voteId);
+            if (dto is null)
+                return BadRequest("dto cant be null");
 
+            var voteId = dto.Id;
+
+            //check if user voted
+            var voted = Request.Cookies[dto.Id.ToString()];
+            if (voted is not null)
+                return BadRequest("you've already voted");
+
+            var vote = vs.GetVoteById(voteId);
+            var answer = vs.GetAnswerFromVote(vote, dto.AnswerName);
+
+            var cookieOptions = new CookieOptions() {Expires = DateTime.Now.AddDays(30),Path = "/"};
+            Response.Cookies.Append(voteId.ToString(), "voted", cookieOptions);
+
+            answer.VoteCounter += 1;
+            context.SaveChanges();
 
             return Ok();
         }
@@ -77,19 +90,16 @@ namespace Voting_App.Controllers
         [HttpDelete("delete/{voteId}")]
         public ActionResult Delete([FromRoute] int voteId)
         {
-            var vote = context.votes.FirstOrDefault(v => v.Id == voteId);
+            var vote = vs.GetVoteById(voteId);
 
             if(vote is null)
             {
                 return BadRequest("vote not found");
             }
 
-            var voteCreator = context.users.FirstOrDefault(user => user.Id == vote.CreatedBy); //user that created the vote
+            var voteCreator = us.GetById(vote.CreatedBy); //user that created the vote
 
             var userClaims = User.Claims; //claims
-
-            if (userClaims is null)
-                return BadRequest();
 
             var userId = int.Parse(User.Claims.Where(c => c.Type == "id").FirstOrDefault().Value);
             var role = User.Claims.Where(c => c.Type == "role").FirstOrDefault().Value;
