@@ -21,7 +21,7 @@ namespace Voting_App.Services
 
         public User GetById(int id)
         {
-            var user = context.users.FirstOrDefault(user => user.Id == id);
+            var user = context.Users.FirstOrDefault(user => user.Id == id);
 
             if (user is null)
                 throw new NotFoundException("user not found");
