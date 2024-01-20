@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Identity.Client;
 using System.Diagnostics;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace Voting_App.Controllers
         private readonly VotingDbContext context; // db context
         private readonly IMapper mapper; //automapper 
         private readonly VoteService vs; //vote service
-        private readonly UserService us;
+        private readonly UserService us; //user service
 
         public VotingController(VotingDbContext _context, IMapper _mapper, VoteService _voteService, UserService us)
         {
@@ -34,14 +35,27 @@ namespace Voting_App.Controllers
             this.us = us;
         }
 
-
-        [HttpGet("get/{voteId}")]
-        public ActionResult Get([FromRoute] int voteId)
+        [AllowAnonymous]
+        [HttpGet("get")]
+        public ActionResult Get([FromQuery] Search search)
         {
-            var vote = vs.GetVoteDto(voteId);
+            if(search.Type == "id")
+            {
+                var vote = vs.GetVoteDto(int.Parse(search.Value));
+                return Ok(vote);
+            }
+            else if(search.Type == "name") 
+            {
+                var vote = vs.GetVoteDtoByName(search.Value);
+                return Ok(vote);
+            }
 
-            return Ok(vote);
+            return BadRequest();
+            
         }
+
+
+
 
         [HttpPost("create")]
         public ActionResult CreateVote([FromBody] VoteDto dto)
@@ -54,7 +68,7 @@ namespace Voting_App.Controllers
 
             var vote = vs.Create(dto, int.Parse(userId.Value));
 
-            context.votes.Add(vote);
+            context.Votes.Add(vote);
             context.SaveChanges();
             return Ok(vote.Id);
         }
@@ -104,9 +118,9 @@ namespace Voting_App.Controllers
             var userId = int.Parse(User.Claims.Where(c => c.Type == "id").FirstOrDefault().Value);
             var role = User.Claims.Where(c => c.Type == "role").FirstOrDefault().Value;
 
-            if (userId == voteCreator.Id || role == "Admin") //check if the vote was created by client sending request
+            if (userId == voteCreator.Id || role == "Admin") //check if the vote was created by client that sent the request
             {
-                context.votes.Remove(vote); //if so, remove the vote from database
+                context.Votes.Remove(vote); //if so, remove the vote from database
                 context.SaveChanges();
                 
                 return Ok("vote removed");

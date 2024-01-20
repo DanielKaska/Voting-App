@@ -36,7 +36,7 @@ namespace Voting_App.Controllers
                 return BadRequest();
             }
 
-            if(context.users.FirstOrDefault(r => r.Email == userDto.Email) != null)
+            if(context.Users.FirstOrDefault(r => r.Email == userDto.Email) != null)
             {
                 return BadRequest("user exists");
             }
@@ -59,7 +59,7 @@ namespace Voting_App.Controllers
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginDto loginDto)
         {
-            var user = context.users.FirstOrDefault(u => u.Email == loginDto.Password); //get user from database
+            var user = context.Users.FirstOrDefault(u => u.Email == loginDto.Password); //get user from database
 
             if(user == null)
             {
