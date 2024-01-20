@@ -5,9 +5,9 @@ namespace Voting_App.Entities
     public class VotingDbContext : DbContext
     {
         private string connectionString = "Server=localhost;Database=VotingAppDB;Integrated Security=True;TrustServerCertificate=True;";
-        public DbSet<User> users { get; set; }
-        public DbSet<Vote> votes { get; set; }
-        public DbSet<Answer> answers { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Vote> Votes { get; set; }
+        public DbSet<Answer> Answers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder mb)
         {
