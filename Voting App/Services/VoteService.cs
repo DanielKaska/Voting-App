@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.Configuration.Conventions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Security.Claims;
 using Voting_App.Entities;
 using Voting_App.Exceptions;
@@ -21,26 +23,33 @@ namespace Voting_App.Services
 
         public ShowVoteDto GetVoteDto(int voteId)
         {
-            var vote = context.votes.FirstOrDefault(x => x.Id == voteId);
+            var vote = context.Votes.Include(v => v.Answers).FirstOrDefault(x => x.Id == voteId);
 
             if (vote is null)
             {
                 throw new NotFoundException("vote not found");
             }
 
-            var answers = context.answers.Where(answers => answers.VoteId == voteId);
+            var voteDto = mapper.Map<ShowVoteDto>(vote);
 
-            List<ShowAnswerDto> answersDto = new();
+            return voteDto;
+        }
 
-            foreach(var a in answers)
+        public ShowVoteDto GetVoteDtoByName(string search)
+        {
+            var vote = context.Votes.Include(v => v.Answers).Where(
+                v => v.Name.Contains(search) || v.Description.Contains(search)
+            ).FirstOrDefault();
+
+
+            Debug.WriteLine(vote);
+
+            if (vote is null)
             {
-                var answer = mapper.Map<ShowAnswerDto>(a);
-                answer.voteCount = a.VoteCounter;
-                answersDto.Add(answer);
+                throw new NotFoundException("vote not found");
             }
 
             var voteDto = mapper.Map<ShowVoteDto>(vote);
-            voteDto.Answers = answersDto;
 
             return voteDto;
         }
@@ -65,7 +74,19 @@ namespace Voting_App.Services
             return vote;
         }
 
-        public Answer GetAnswerFromVote(Vote v, string answerName)
+        public Vote GetVoteById(int voteId) //returns raw vote by its id
+        {
+            var vote = context.Votes.Include(v => v.Answers).FirstOrDefault(x => x.Id == voteId);
+
+            if (vote is null)
+            {
+                throw new NotFoundException("vote not found");
+            }
+
+            return vote;
+        }
+
+        public Answer GetAnswerFromVote(Vote v, string answerName) //gets answer from vote by its name
         {
             var a = v.Answers.FirstOrDefault(a => a.Name == answerName);
 
@@ -73,22 +94,6 @@ namespace Voting_App.Services
                 throw new NotFoundException("answer not found");
 
             return a;
-        }
-
-        public Vote GetVoteById(int voteId)
-        {
-            var vote = context.votes.FirstOrDefault(x => x.Id == voteId);
-
-            if (vote is null)
-            {
-                throw new NotFoundException("vote not found");
-            }
-
-            var answers = context.answers.Where(answers => answers.VoteId == voteId);
-
-            vote.Answers = answers.ToList();
-
-            return vote;
         }
 
     }

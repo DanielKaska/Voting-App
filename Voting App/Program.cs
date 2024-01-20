@@ -52,6 +52,7 @@ builder.Services.AddSingleton(settings);
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddSingleton<VoteService>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
