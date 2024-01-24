@@ -64,7 +64,7 @@ namespace Voting_App.Controllers
             var userId = claims.Where(c => c.Type == "id").FirstOrDefault(); //get user id
 
             if(userId == null)
-                return BadRequest("could not idenditify user");
+                return BadRequest("could not identify user");
 
             var vote = vs.Create(dto, int.Parse(userId.Value));
 

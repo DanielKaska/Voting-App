@@ -52,8 +52,14 @@ builder.Services.AddSingleton(settings);
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
 builder.Services.AddSingleton<VoteService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontEndApp", o => o.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+});
 
 var app = builder.Build();
+
+app.UseCors("FrontEndApp");
 
 // Configure the HTTP request pipeline.
 
